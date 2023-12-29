@@ -1,6 +1,7 @@
 from flask import redirect, render_template, request, session, url_for
 from conf import app
 import hashlib
+import api.routes
 
 # Routing handlers for web app (Jinja for server-side templating and jQuery in target pages)
 @app.route("/")

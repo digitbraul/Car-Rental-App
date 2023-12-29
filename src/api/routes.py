@@ -17,18 +17,18 @@ class CarList(Resource):
     def __init__(self) -> None:
         super(CarList, self).__init__()
 
-    def get(self, car_make, seats, fuel_type):
+    def get(self):
         # Fetch resource from api.db (if request contains args, filter the result based on them)
-        errors = cars_schema.validate(request.args)
+        all_cars = CarModel.query.all()#filter_by(request.args['car_make'], request.args['seats'], request.args['fuel_type']).all()
+        return jsonify(cars_schema.dump(all_cars))
+    
+    def post(self):
+        # Creates a new car resource
+        errors = cars_schema.validate(request.form)
         if errors:
             abort(400, str(errors))
         
-        all_cars = CarModel.query.filter_by(car_make, seats, fuel_type).all()
-        return jsonify(cars_schema.dump())
-    
-    def post(self, car_make, car_model, seats, fuel_type, thumb):
-        # Creates a new car resource
-        car = CarModel(car_make, car_model, seats, fuel_type, thumb)
+        car = CarModel(request.form['car_make'], request.form['car_model'], request.form['seats'], request.form['fuel_type'], request.form['thumb'])
         db.session.add(car)
         db.session.commit()
         return car_schema.jsonify(car)
@@ -39,19 +39,23 @@ class Car(Resource):
     def __init__(self) -> None:
         super(Car, self).__init__()
     
-    def get(self):
+    def get(self, car_id):
         # Fetch car
         car = CarModel.query.get(car_id)
         return car_schema.jsonify(car)
     
-    def patch(self, car_make, car_model, seats, fuel_type, thumb):
+    def patch(self, car_id):
         # Update car
+        errors = cars_schema.validate(request.form)
+        if errors:
+            abort(400, str(errors))
+        
         car = CarModel.query.get(car_id)
-        car.car_make = car_make
-        car.car_model = car_model
-        car.seats = seats
-        car.fuel_type = fuel_type
-        car.thumb = thumb
+        car.car_make = request.form['car_make']
+        car.car_model = request.form['car_model']
+        car.seats = request.form['seats']
+        car.fuel_type = request.form['fuel_type']
+        car.thumb = request.form['thumb']
         db.session.add(car)
         db.session.commit()
         return car_schema.jsonify(car)
