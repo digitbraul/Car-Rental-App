@@ -1,25 +1,47 @@
 from flask_marshmallow import Schema, fields
+from sqlalchemy.types import Enum, Integer, String, Float
 from conf import db
 from conf import ma
+import enum
+
+class FuelType(enum.Enum):
+    Gasoline = 1
+    Diesel = 2
+    Electric = 3
+
+class Transmission(enum.Enum):
+    Automatic = 1
+    Electronic = 2
+    Manual = 3
 
 class CarModel(db.Model):
     """Model for a Car resource"""
-    id = db.Column(db.Integer, primary_key=True)
-    car_make = db.Column(db.String(30))
-    car_model = db.Column(db.String(30))
-    seats = db.Column(db.Integer)
-    fuel_type = db.Column(db.String(30))
-    thumb = db.Column(db.String(256)) # TODO: check MariaDB for the exact values?
+    __tablename__ = "Cars"
+    id = db.Column(Integer, primary_key=True) # Unique identifier
+    car_make = db.Column(String(30), nullable=False) # Car manufacturer
+    car_model = db.Column(String(30), nullable=False) # Car model
+    daily_price = db.Column(Float(precision=2), nullable=False) # Actual daily price
+    deductible = db.Column(Float(precision=2), nullable=False) # Caution? (excess) liability pricing
+    seats = db.Column(Integer) # number of seats (typically 5)
+    fuel_type = db.Column(Enum(FuelType))
+    transmission = db.Column(Enum(Transmission))
 
-    def __init__(self, car_make, car_model, seats, fuel_type) -> None:
+    # add this in the bookings table as a foreign key
+    #user_id = =db.Column(Integer, db.ForeignKey('stores.id'), nullable=False)
+
+    def __init__(self, car_make, car_model, seats, fuel_type, thumb_url) -> None:
         super().__init__()
         self.car_make = car_make
         self.car_model = car_model
         self.seats = seats
         self.fuel_type = fuel_type
-        self.thumb = thumb # base64 encoded image file
+        self.thumb_url = thumb_url # url to an image to be encoded in base64
 
 class CarSchema(ma.SQLAlchemyAutoSchema):
     """Auto-gen Schema for Marshmallow serialization / deserialization"""
     class Meta:
         model = CarModel
+        load_instance = True
+        #include_fk = True
+
+# in the bookings schema, add the following before the Meta class definition: items = ma.Nested(ItemSchema, many=True)
