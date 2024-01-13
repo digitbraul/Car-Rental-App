@@ -11,7 +11,7 @@ app.secret_key = "allmyfellas"
 
 app.config["DEBUG"] = True
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost:3306/cars_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost:3306/sqla_cars_db'
 
 mysql = MySQL(app)
 api = Api(app)

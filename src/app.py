@@ -1,19 +1,8 @@
 from flask import redirect, render_template, request, session, url_for
 from conf import app
 import hashlib
+import api.routes
 
-# Routing handlers for web app (Jinja for server-side templating and jQuery in target pages)
-@app.route("/")
-def home():
-    return render_template('home.html')
-
-# don't use
-@app.route("/api/add_cars", methods = ['GET', 'POST'])
-def add_car():
-    if not session.get('logged-in'):
-        return redirect(url_for('login.html'))
-    
-    # TODO : remove this and only keep the dashboard, it'll send requests via jQuery for the API to validate them
 
 
 @app.route("/admin", methods = ['GET', 'POST'])
