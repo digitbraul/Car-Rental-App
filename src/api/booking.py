@@ -2,7 +2,9 @@ from flask_marshmallow import Schema, fields
 from sqlalchemy.types import Enum, Integer, String, Float, Date
 from conf import db
 from conf import ma
-import enum
+
+from api.car import CarSchema
+from api.user import UserSchema
 
 class BookingModel(db.Model):
     """Model for booking information"""
@@ -16,15 +18,22 @@ class BookingModel(db.Model):
     start_date = db.Column(Date, nullable=False)
     end_date = db.Column(Date, nullable=False)
     
-    def __init(self, car_id, user_id, start_date, end_date):
+    def __init__(self, car_id, user_id, start_date, end_date):
         super().__init__()
         self.car_id = car_id
         self.user_id = user_id
         self.start_date = start_date
         self.end_date = end_date
 
-class BookingSchema(ma.SQLAlchemyAutoSchema):
+class BookingSchema(ma.SQLAlchemySchema):
     class Meta:
         model = BookingModel
+        fields = ('id', 'car', 'user', 'start_date', 'end_date')
         load_instance = True
         include_fk = True
+    
+    id = ma.auto_field()
+    car = ma.Nested(CarSchema)
+    user = ma.Nested(UserSchema, only=('id', 'uname'))
+    start_date = ma.auto_field()
+    end_date = ma.auto_field()
