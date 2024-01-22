@@ -9,7 +9,7 @@ class UserModel(db.Model):
     __tablename__ = "Users"
     id = db.Column(Integer, primary_key=True) # Unique identifier
     uname = db.Column(String(30), nullable=False, unique=True) # Username
-    upass = db.Column(String(128), nullable=False)
+    upass = db.Column(String(255), nullable=False)
 
     def __init__(self, uname, upass):
         super().__init__()
@@ -24,3 +24,4 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = UserModel
         load_instance = True
+        include_fk = True
