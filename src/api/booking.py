@@ -28,9 +28,10 @@ class BookingModel(db.Model):
 class BookingSchema(ma.SQLAlchemySchema):
     class Meta:
         model = BookingModel
-        fields = ('id', 'car', 'user', 'start_date', 'end_date')
+        fields = ('id', 'car_id', 'car', 'user_id', 'user', 'start_date', 'end_date')
         load_instance = True
         include_fk = True
+        include_relationships = True
     
     id = ma.auto_field()
     car = ma.Nested(CarSchema)

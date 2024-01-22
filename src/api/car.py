@@ -49,6 +49,6 @@ class CarSchema(ma.SQLAlchemyAutoSchema):
         model = CarModel
         fields = ('id', 'car_make', 'car_model', 'seats', 'fuel_type', 'thumb_url', 'location', 'daily_price', 'deductible', 'transmission')
         load_instance = True
-        #include_fk = True
+        include_fk = True
 
 # in the bookings schema, add the following before the Meta class definition: items = ma.Nested(ItemSchema, many=True)

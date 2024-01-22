@@ -146,8 +146,11 @@ class User(Resource):
         if session.get('id') != int(hashlib.sha1("admin".encode("utf-8")).hexdigest(), 16) % (10 ** 8):
             return {"message" : "Cannot access content unless logged in as admin"}, 403
         
-        current_user = UserModel.query.filter(UserModel.uname == uname).first()
-        return user_schema.dump(current_user), 200
+        current_user = UserModel.query.filter(UserModel.uname == uname).first() or None
+        if current_user is None:
+            return {"message" : "Username does not exist!"}, 404
+        else:
+            return user_schema.dump(current_user), 200
 
     def delete(self, uname):
         if session.get('id') != int(hashlib.sha1("admin".encode("utf-8")).hexdigest(), 16) % (10 ** 8):
@@ -210,7 +213,7 @@ class BookingList(Resource):
         
         current_user = UserModel.query.filter(UserModel.id == int(request.form['user_id'])).first()
         if session.get('id') != int(hashlib.sha1(current_user.uname.encode("utf-8")).hexdigest(), 16) % (10 ** 8):
-            return {"message" : "User ID mismatch!"}
+            return {"message" : "User ID mismatch!"}, 403
         
         booking = BookingModel(\
                 request.form['car_id'], \
@@ -219,7 +222,7 @@ class BookingList(Resource):
                 request.form['end_date'])
         db.session.add(booking)
         db.session.commit()
-        return booking_schema.dump(booking), 200
+        return {"message" : "Booking created successfully!"}, 200
 
 @api.resource('/bookings/<int:booking_id>')
 class Booking(Resource):
@@ -233,6 +236,9 @@ class Booking(Resource):
     
     # Update booking start or end date
     def patch(self, booking_id):
+        if 'id' not in session:
+            return {"message" : "No user currently logged in!"}, 401
+
         if 'start_date' in request.form and 'end_date' in request.form:
             BookingModel.query.filter(BookingModel.id == booking_id).update({BookingModel.start_date : request.form['start_date'], BookingModel.end_date : request.form['end_date']})
             db.session.commit()
